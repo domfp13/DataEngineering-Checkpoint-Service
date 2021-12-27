@@ -1,0 +1,25 @@
+# -*- coding: utf-8 -*-
+# Created by Luis Enrique Fuentes Plata
+
+version: "3.8"
+
+networks:
+  default:
+    driver: bridge
+    name: ${NETWORK_NAME}
+    ipam:
+      driver: default
+      config:
+        - subnet: ${NETWORK_SUBNET}
+
+services:
+  api-checkpoint:
+    build: .
+    container_name: api-checkpoint
+    environment:
+      - DATABASE_NAME=${BUCKET_NAME}
+    stdin_open: true
+    tty: true
+    restart: always
+    ports:
+      - :1111
