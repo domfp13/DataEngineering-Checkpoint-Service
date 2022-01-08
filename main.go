@@ -1,9 +1,8 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 // album represents data about a record album.
@@ -28,8 +27,9 @@ func main() {
 	router.GET("/albums/:id", getAlbumByID)
 	router.POST("/albums", postAlbums)
 
-	//router.Run("localhost:8080")
-	router.Run(":1111")
+	// use this for local development instead
+	router.Run("localhost:8080")
+	//router.Run(":1111")
 }
 
 // getAlbums responds with the list of all albums as JSON.
@@ -67,16 +67,3 @@ func getAlbumByID(c *gin.Context) {
 	}
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
 }
-
-/*docker container run --rm -it \
---name python-runer --network checkpoint-service-network \
-python:alpine3.14 /bin/ash
-
-import requests
-
-if __name__ == "__main__":
-URL = "http://api-checkpoint:1111/albums"
-PARAMS = {}
-r = requests.get(url = URL, params = PARAMS)
-data = r.json()
-print(data)*/

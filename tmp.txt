@@ -1,0 +1,12 @@
+/*docker container run --rm -it \
+--name python-runer --network checkpoint-service-network \
+python:alpine3.14 /bin/ash
+
+import requests
+
+if __name__ == "__main__":
+URL = "http://api-checkpoint:1111/albums"
+PARAMS = {}
+r = requests.get(url = URL, params = PARAMS)
+data = r.json()
+print(data)*/
