@@ -1,6 +1,7 @@
 package main
 
 import (
+	"checkpoint-service/src"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -20,12 +21,19 @@ var albums = []album{
 	{ID: "3", Title: "Sarah Vaughan and Clifford Brown", Artist: "Sarah Vaughan", Price: 39.99},
 }
 
+const (
+	prefix    = "checkpoints/"
+	extension = ".json"
+)
+
 func main() {
 	router := gin.Default()
 
-	router.GET("/albums", getAlbums)
-	router.GET("/albums/:id", getAlbumByID)
-	router.POST("/albums", postAlbums)
+	//router.GET("/albums", getAlbums)
+	//router.GET("/albums/:id", getAlbumByID)
+	//router.POST("/albums", postAlbums)
+
+	router.GET("/tables/:tableName", getTableInfoByName)
 
 	// use this for local development instead
 	router.Run("localhost:8080")
@@ -66,4 +74,19 @@ func getAlbumByID(c *gin.Context) {
 		}
 	}
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+}
+
+// getTableInfoByName locates the S3 object in the checkpoint prefix whose name matches
+// the parameter sent by the client, then returns the checkpointObject in a JSON format.
+func getTableInfoByName(c *gin.Context) {
+
+	objectName := c.Param("tableName")
+	var awsS3Key string = prefix + objectName + extension
+	if src.GetS3BucketFile(awsS3Key) {
+		var checkpointObjects = src.ReadFileJsonObject(objectName)
+		c.IndentedJSON(http.StatusOK, checkpointObjects)
+		return
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Checkpoint not found"})
+
 }
