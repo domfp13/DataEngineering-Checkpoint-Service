@@ -1,69 +1,53 @@
+// Created by Luis Enrique Fuentes Plata
+
 package main
 
 import (
+	"checkpoint-service/src"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-// album represents data about a record album.
-type album struct {
-	ID     string  `json:"id"`
-	Title  string  `json:"title"`
-	Artist string  `json:"artist"`
-	Price  float64 `json:"price"`
-}
-
-// albums slice to seed record album data.
-var albums = []album{
-	{ID: "1", Title: "Blue Train", Artist: "John Coltrane", Price: 56.99},
-	{ID: "2", Title: "Jeru", Artist: "Gerry Mulligan", Price: 17.99},
-	{ID: "3", Title: "Sarah Vaughan and Clifford Brown", Artist: "Sarah Vaughan", Price: 39.99},
-}
+const (
+	prefix    = "checkpoints/"
+	extension = ".json"
+)
 
 func main() {
+
 	router := gin.Default()
 
-	router.GET("/albums", getAlbums)
-	router.GET("/albums/:id", getAlbumByID)
-	router.POST("/albums", postAlbums)
+	router.GET("/tables/:tableName", getTableInfoByName)
+	router.POST("/tables/:tableName", postTableInfoByTime)
 
-	// use this for local development instead
-	router.Run("localhost:8080")
-	//router.Run(":1111")
+	router.Run(":1111")
+
+	//router.Run("localhost:8080") // DO NOT DELETE this line.
 }
 
-// getAlbums responds with the list of all albums as JSON.
-func getAlbums(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, albums)
-}
+// getTableInfoByName locates the S3 object in the checkpoint prefix whose name matches
+// the parameter sent by the client, then returns the checkpointObject in a JSON format.
+func getTableInfoByName(c *gin.Context) {
 
-// postAlbums adds an album from JSON received in the request body.
-func postAlbums(c *gin.Context) {
-	var newAlbum album
-
-	// Call BindJSON to bind the received JSON to
-	// newAlbum.
-	if err := c.BindJSON(&newAlbum); err != nil {
+	objectName := c.Param("tableName")
+	var awsS3Key string = prefix + objectName + extension
+	if src.GetS3BucketFile(awsS3Key) {
+		var checkpointObjects = src.ReadFileJsonObject(objectName)
+		c.IndentedJSON(http.StatusOK, checkpointObjects)
 		return
 	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Checkpoint not found"})
 
-	// Add the new album to the slice.
-	albums = append(albums, newAlbum)
-	c.IndentedJSON(http.StatusCreated, newAlbum)
 }
 
-// getAlbumByID locates the album whose ID value matches the id
-// parameter sent by the client, then returns that album as a response.
-func getAlbumByID(c *gin.Context) {
-	id := c.Param("id")
+// postTableInfoByTime adds/modifies S3 object from JSON received in the request body.
+func postTableInfoByTime(c *gin.Context) {
 
-	// Loop through the list of albums, looking for
-	// an album whose ID value matches the parameter.
-	for _, a := range albums {
-		if a.ID == id {
-			c.IndentedJSON(http.StatusOK, a)
-			return
-		}
+	objectName := c.Param("tableName")
+	if src.WriteFileJsonObject(objectName, c) {
+		src.UploadS3BucketFile(objectName)
+		c.IndentedJSON(http.StatusCreated, gin.H{"message": "File Uploaded"})
+	} else {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Params not pass or Time field empty"})
 	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
 }
