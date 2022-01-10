@@ -14,6 +14,7 @@ const (
 )
 
 func main() {
+
 	router := gin.Default()
 
 	router.GET("/tables/:tableName", getTableInfoByName)
