@@ -1,3 +1,5 @@
+// Created by Luis Enrique Fuentes Plata
+
 package src
 
 import (
@@ -13,7 +15,10 @@ type checkpointObject struct {
 }
 
 // ReadFileJsonObject uses unmarshalling to open an existent JSON object
-// and returns its content.
+// Inputs:
+//     objectName: name of the file to be read.
+// Output:
+//     []checkpointObject
 func ReadFileJsonObject(objectName string) []checkpointObject {
 	content, err := ioutil.ReadFile(localDir + prefix + objectName + extension)
 	if err != nil {
@@ -31,7 +36,11 @@ func ReadFileJsonObject(objectName string) []checkpointObject {
 }
 
 // WriteFileJsonObject uses marshalling to write a struct into a JSON object
-// The file save under tmp/checkpoint/
+// Inputs:
+//     objectName: name of the file to be read.
+//     c gin.Context object, this will be used to get the JSON payload.
+// Output:
+//     true if everything goes right, otherwise, false.
 func WriteFileJsonObject(objectName string, c *gin.Context) bool {
 
 	var newCheckpoint checkpointObject

@@ -13,7 +13,8 @@ COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
 
-COPY *.go ./
+COPY src src
+COPY main.go ./
 
 RUN go build -o /checkpoint-service
 
@@ -26,8 +27,6 @@ FROM gcr.io/distroless/base-debian10
 WORKDIR /
 
 COPY --from=build /checkpoint-service /checkpoint-service
-
-EXPOSE 8080
 
 USER nonroot:nonroot
 

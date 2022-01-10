@@ -1,3 +1,5 @@
+// Created by Luis Enrique Fuentes Plata
+
 package main
 
 import (
@@ -17,11 +19,9 @@ func main() {
 	router.GET("/tables/:tableName", getTableInfoByName)
 	router.POST("/tables/:tableName", postTableInfoByTime)
 
-	// use this for local development instead
-	router.Run("localhost:8080")
+	router.Run(":1111")
 
-	// Use this for container run
-	//router.Run(":1111")
+	//router.Run("localhost:8080") // DO NOT DELETE this line.
 }
 
 // getTableInfoByName locates the S3 object in the checkpoint prefix whose name matches
