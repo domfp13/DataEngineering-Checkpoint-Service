@@ -41,7 +41,6 @@ func WriteFileJsonObject(objectName string, c *gin.Context) bool {
 		log.Println(err)
 	}
 
-	// makes sure the content was passed correctly
 	if newCheckpoint.Time == "" {
 		return false
 	}

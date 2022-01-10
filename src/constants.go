@@ -6,6 +6,4 @@ const (
 	extension = ".json"
 )
 
-var (
-	awsS3Bucket = "domfp13-s3-bucket"
-)
+var awsS3Bucket = "domfp13-s3-bucket"

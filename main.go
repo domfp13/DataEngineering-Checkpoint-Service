@@ -44,8 +44,9 @@ func postTableInfoByTime(c *gin.Context) {
 
 	objectName := c.Param("tableName")
 	if src.WriteFileJsonObject(objectName, c) {
+		src.UploadS3BucketFile(objectName)
 		c.IndentedJSON(http.StatusCreated, gin.H{"message": "File Uploaded"})
 	} else {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Params not pass or Time empty"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Params not pass or Time field empty"})
 	}
 }

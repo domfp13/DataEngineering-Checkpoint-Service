@@ -3,6 +3,8 @@
 SHELL = /bin/bash
 include .env
 
+.DEFAULT_GOAL := help
+
 .PHONY: build
 build: ## Build Docker Image
 	@ docker image build --rm -t ${IMAGE_NAME} .
@@ -29,5 +31,3 @@ runner: ## Create a python runner
 help:
 	@ echo "Please use \`make <target>' where <target> is one of"
 	@ perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m  %-25s\033[0m %s\n", $$1, $$2}'
-
-.DEFAULT_GOAL := help
