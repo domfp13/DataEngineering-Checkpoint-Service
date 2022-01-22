@@ -24,4 +24,4 @@ services:
     tty: true
     restart: always
     ports:
-      - :1111
+      - "1111:1111"

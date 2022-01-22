@@ -7,6 +7,16 @@ include .env
 
 .DEFAULT_GOAL := help
 
+AWS_ACCESS_KEY_ID=$(shell cat ~/.aws/credentials | grep aws_access_key_id | cut -d '=' -f 2)
+AWS_SECRET_ACCESS_KEY=$(shell cat ~/.aws/credentials | grep aws_secret_access_key | cut -d '=' -f 2)
+
+.PHONY: get-creds
+get-creds: ## 0.-If AWS credentails are available get them by
+	@ echo "********** AWS_ACCESS_KEY_ID **********"
+	@ echo ${AWS_ACCESS_KEY_ID}
+	@ echo "********** AWS_SECRET_ACCESS_KEY **********"
+	@ echo ${AWS_SECRET_ACCESS_KEY}
+
 .PHONY: setup
 setup: ## 1.-Create Docker Image
 	@ echo "********** Building image **********"

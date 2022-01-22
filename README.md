@@ -4,13 +4,11 @@ General purpose golang API to create a checkpoint service on AWS S3
 This project contains source code and supporting files for a containerized
 golang application. It includes the following files and folders.
 
-- src (Directory) - Go source code directory.- 
-    - constants.go
-      - These are constants a variable to be used across the src package.
-    - jsonutil.go
-        - Works with JSON files (reads, writes).
+- src (Directory) - Go source code package.
+    - constants.go: These are constants and variable to be used across the src package.
+    - jsonutil.go: Works with JSON files (reads/writes).
     - s3util.go
-        - Works with downloading/uploading file objest to S3.
+        - Works with downloading/uploading file objects to S3.
 - docker-compose.test.yml - docker-compose file to be used while testing.
 - docker-compose.yml - docker-compose file to be used in Production.
 - Dockerfile - Docker image manifest.
@@ -20,7 +18,7 @@ golang application. It includes the following files and folders.
 ## Requirements
 * [Docker](https://hub.docker.com/search/?type=edition&offering=community):
     * This application has been packaged and requires Docker to be run. All require dependencies
-      e.g (Oracle client, AWS boto3 libs, pandas, numpy, etc) have been already configured in the main Docker
+      e.g (Go AWS SDK, gin-gonic, etc) have been already configured in the main Docker
       image, this guaranties a very easy to manage and portable code across the Windows/Linux ecosystems.
 * [Git CLI](https://git-scm.com/)
     * This project is using GNU Makefile, to test locally using Windows the Git Bash
@@ -48,20 +46,80 @@ Passing credentials or storing AWS credentials in the code is prohibited.
 
 ## Run application
 This repo contains a `Makefile` with different target formulas to build and run (locally/production).
+Before you run the project make sure you change the BUCKETNAME variable in the .env file and also add
+a directory on the root of the S3 bucket called checkpoints, create a file within that directory
+eg: sampleTableA.json with the following format:
+
+```
+[
+ {
+  "Time":"20220111"
+ }
+]
+
+```
 To check the different target formulas run:
 ```
 $ make
 ```
 This will display the different targets.
 
-To run this application in local environment first add the credentials in the .env file of this repo 
+To run this application in local environment first add the credentials in the .env file of this repo
 after that run:
 ```
 $ make run-local
 ```
 To run this application in QC/Prod run
 ```
-$ make run-prod
+$ make run
+```
+To test API you can create another container inside of the same network and test your code
+```
+$ docker container run --rm -it \
+    --name python-runer \
+    --network checkpoint-service-network \
+    python:alpine3.14 /bin/ash
+
+# Inside of the container install
+apk -U add vim
+pip install requests
+
+# 1.- GET request
+# Create a new file
+vim main.py
+
+import requests
+
+if __name__ == "__main__":
+    URL = "http://api-checkpoint:1111/tables/sampleTableA"
+    PARAMS = {}
+    r = requests.get(url = URL, params = PARAMS)
+    data = r.json()
+    print(data)
+
+python main.py
+
+# 2.- POST request
+vim main2.py
+
+import requests
+import json
+
+if __name__ == "__main__":
+    url = "http://api-checkpoint:1111/tables/sampleTableA"
+
+    payload = json.dumps({
+    "Time": "20220113"
+    })
+    headers = {
+    'Content-Type': 'application/json'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    print(response.text)
+
+python main2.py
 ```
 
 ## How to contribute to the project
