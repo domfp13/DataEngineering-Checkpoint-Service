@@ -1,15 +1,12 @@
 # checkpoint-service
-General purpose golang API to create a checkpoint service on AWS S3
+General purpose golang API to create a checkpoint service on Redis
 
 This project contains source code and supporting files for a containerized
 golang application. It includes the following files and folders.
 
 - src (Directory) - Go source code package.
-    - constants.go: These are constants and variable to be used across the src package.
-    - jsonutil.go: Works with JSON files (reads/writes).
-    - s3util.go
-        - Works with downloading/uploading file objects to S3.
-- docker-compose.test.yml - docker-compose file to be used while testing.
+    - checkpoint.go: Defines a Struct for the checkpoint service.
+    - redisutil: Set/Gets values from Redis
 - docker-compose.yml - docker-compose file to be used in Production.
 - Dockerfile - Docker image manifest.
 - main.go - Application main runner, creates a webserver for REST API.
@@ -18,62 +15,66 @@ golang application. It includes the following files and folders.
 ## Requirements
 * [Docker](https://hub.docker.com/search/?type=edition&offering=community):
     * This application has been packaged and requires Docker to be run. All require dependencies
-      e.g (Go AWS SDK, gin-gonic, etc) have been already configured in the main Docker
+      e.g (Go Redis, Marshal, gin-gonic, etc) have been already configured in the main Docker
       image, this guaranties a very easy to manage and portable code across the Windows/Linux ecosystems.
 * [Git CLI](https://git-scm.com/)
-    * This project is using GNU Makefile, to test locally using Windows the Git Bash
+    * This project is using Unix Makefile, to test locally using Windows the Git Bash
       (terminal emulator) is required, also set the environmental variables binary
       for git on top of the system environmental variables, this will allow command shell
       to use the Unix instead of Windows.
-* [AWS Credentials]()
-    * For local development this project requires the aws credentials to be set.
-    * Create under your home directory an .aws directory
-        * ``` mkdir ~/.aws && cd ~/.aws ```
-        * ``` touch config credentials ```
-        * Edit the config and credentials files as follows:
-```
-[default]
-region = us-east-1
-```
-```
-[default]
-aws_access_key_id=<YOUR_AWS_ACCESS_KEY_ID>
-aws_secret_access_key=<YOUR_AWS_SECRET_ACCESS_KEY>
-```
-<div style="font-size:140%;color:red"> 
-Passing credentials or storing AWS credentials in the code is prohibited.
-</div>
 
 ## Run application
 This repo contains a `Makefile` with different target formulas to build and run (locally/production).
-Before you run the project make sure you change the BUCKETNAME variable in the .env file and also add
-a directory on the root of the S3 bucket called checkpoints, create a file within that directory
-eg: sampleTableA.json with the following format:
-
+To run the application:
 ```
-[
- {
-  "Time":"20220111"
- }
-]
-
+$ make run
 ```
+A directory (redis-data) will show up if this is the first time you run the project, this will use a mouting
+volume storing the Redis data inside the project, in case services are down the data will be 
+recovered automatically if you run the application again.
+
 To check the different target formulas run:
 ```
 $ make
 ```
-This will display the different targets.
+## Add Checkpoints
+The based URL will be
+```
+http://localhost:1111/tables/<your_table_name>
+```
 
-To run this application in local environment first add the credentials in the .env file of this repo
-after that run:
+### POST: Example
+The following example will set up a checkpoint for table: sampleTableA
 ```
-$ make run-local
+http://localhost:1111/tables/sampleTableA
 ```
-To run this application in QC/Prod run
+Body
 ```
-$ make run
+{
+    "Time":"20220111"
+}
 ```
-To test API you can create another container inside of the same network and test your code
+Response
+```
+{
+    "message": "Value Set"
+}
+```
+
+### GET Example
+the following example will get the checkpoint previously set.
+```
+http://localhost:1111/tables/sampleTableA
+```
+Response
+```
+{
+    "Time": "20220123"
+}
+```
+
+### Python Example
+To test API you can create another container inside the same network and test your code
 ```
 $ docker container run --rm -it \
     --name python-runer \
