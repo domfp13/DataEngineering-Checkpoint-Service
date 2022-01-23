@@ -46,15 +46,8 @@ http://localhost:1111/tables/<your_table_name>
 ### POST: Example
 The following example will set up a checkpoint for table: sampleTableA
 ```
-http://localhost:1111/tables/sampleTableA
+curl -X POST -H 'Content-Type: application/json' --data '{"Time":"20220123"}' http://localhost:1111/tables/sampleTableA
 ```
-Body
-```
-{
-    "Time":"20220111"
-}
-```
-Response
 ```
 {
     "message": "Value Set"
