@@ -30,4 +30,6 @@ COPY --from=build /checkpoint-service /checkpoint-service
 
 USER nonroot:nonroot
 
+EXPOSE 1111
+
 ENTRYPOINT ["/checkpoint-service"]

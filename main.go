@@ -5,49 +5,64 @@ package main
 import (
 	"checkpoint-service/src"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
-)
-
-const (
-	prefix    = "checkpoints/"
-	extension = ".json"
 )
 
 func main() {
 
 	router := gin.Default()
 
-	router.GET("/tables/:tableName", getTableInfoByName)
-	router.POST("/tables/:tableName", postTableInfoByTime)
+	router.GET("/tables/:tableName", getCheckpoint)
+	router.POST("/tables/:tableName", postCheckpoint)
+	router.GET("/tables", getAllTables)
 
 	router.Run(":1111")
-
-	//router.Run("localhost:8080") // DO NOT DELETE this line.
+	//router.Run("localhost:1111") // DO NOT DELETE this line.
 }
 
-// getTableInfoByName locates the S3 object in the checkpoint prefix whose name matches
-// the parameter sent by the client, then returns the checkpointObject in a JSON format.
-func getTableInfoByName(c *gin.Context) {
+// getCheckpoint Takes the name of a tale and retries its value from the redis server.
+// Inputs:
+//     *gin.Context Server GET requests.
+func getCheckpoint(c *gin.Context) {
 
-	objectName := c.Param("tableName")
-	var awsS3Key string = prefix + objectName + extension
-	if src.GetS3BucketFile(awsS3Key) {
-		var checkpointObjects = src.ReadFileJsonObject(objectName)
-		c.IndentedJSON(http.StatusOK, checkpointObjects)
+	tableName := c.Param("tableName")
+	value, err := src.GetCheckpoint(tableName)
+	if err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Checkpoint NOT found"})
+		return
+	} else {
+		c.IndentedJSON(http.StatusOK, value)
+	}
+}
+
+// postCheckpoint Takes the name of a tale and retries its value from the redis server.
+// Inputs:
+//     *gin.Context Server POST requests.
+func postCheckpoint(c *gin.Context) {
+
+	tableName := c.Param("tableName")
+	var newCheckpoint src.CheckpointObject
+	if err := c.Bind(&newCheckpoint); err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
 		return
 	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Checkpoint not found"})
-
+	if err := src.SetCheckpoint(tableName, newCheckpoint); err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err})
+		return
+	} else {
+		c.IndentedJSON(http.StatusCreated, gin.H{"message": "Value Set"})
+	}
 }
 
-// postTableInfoByTime adds/modifies S3 object from JSON received in the request body.
-func postTableInfoByTime(c *gin.Context) {
-
-	objectName := c.Param("tableName")
-	if src.WriteFileJsonObject(objectName, c) {
-		src.UploadS3BucketFile(objectName)
-		c.IndentedJSON(http.StatusCreated, gin.H{"message": "File Uploaded"})
-	} else {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Params not pass or Time field empty"})
+func getAllTables(c *gin.Context) {
+	results, err := src.GetAllCheckpoints()
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
+		return
 	}
+	c.IndentedJSON(http.StatusOK, gin.H{"message": results})
 }

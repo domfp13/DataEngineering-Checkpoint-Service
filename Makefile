@@ -7,16 +7,6 @@ include .env
 
 .DEFAULT_GOAL := help
 
-AWS_ACCESS_KEY_ID=$(shell cat ~/.aws/credentials | grep aws_access_key_id | cut -d '=' -f 2)
-AWS_SECRET_ACCESS_KEY=$(shell cat ~/.aws/credentials | grep aws_secret_access_key | cut -d '=' -f 2)
-
-.PHONY: get-creds
-get-creds: ## 0.-If AWS credentails are available get them by
-	@ echo "********** AWS_ACCESS_KEY_ID **********"
-	@ echo ${AWS_ACCESS_KEY_ID}
-	@ echo "********** AWS_SECRET_ACCESS_KEY **********"
-	@ echo ${AWS_SECRET_ACCESS_KEY}
-
 .PHONY: setup
 setup: ## 1.-Create Docker Image
 	@ echo "********** Building image **********"
@@ -24,17 +14,15 @@ setup: ## 1.-Create Docker Image
 	@ echo "********** Cleanup **********"
 	@ docker image prune -f
 
-.PHONY: run-local
-run-local: ## 2.-Run Code locally
-	@ echo "Creating and Starting services"
-	@ $(MAKE) setup
-	@ docker-compose -f docker-compose.test.yml up -d --build
-
 .PHONY: run
-run: ## 3.-Run code server
+run: ## 2.-Run code server
 	@ echo "Creating and Starting services"
 	@ $(MAKE) setup
-	@ docker-compose -f docker-compose.yml up -d --build
+	@ docker-compose -f docker-compose.yml up -d --build --remove-orphans
+
+.PHONY: redis
+redis: ## 3.- Jump inside redis server: redis-cli
+	@ docker exec -it redis-checkpoint /bin/bash
 
 .PHONY: runner
 runner: ## 4- Create python container tester
