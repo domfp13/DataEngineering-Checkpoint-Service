@@ -129,6 +129,3 @@ packaged-template.yaml
 
 # tmp dir
 tmp/*
-
-# Redis data
-redis-data/*
