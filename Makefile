@@ -4,7 +4,6 @@
 SHELL = /bin/bash
 
 include .env
-
 .DEFAULT_GOAL := help
 
 .PHONY: setup
@@ -14,8 +13,8 @@ setup: ## 1.-Create Docker Image
 	@ echo "********** Cleanup **********"
 	@ docker image prune -f
 
-.PHONY: run
-run: ## 2.-Run code server
+.PHONY: bootstrap
+bootstrap: ## 2.-Run code server
 	@ echo "Creating and Starting services"
 	@ $(MAKE) setup
 	@ docker-compose -f docker-compose.yml up -d --build --remove-orphans
