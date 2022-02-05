@@ -30,6 +30,9 @@ func GetAllCheckpoints() ([]string, error) {
 	for iter.Next(ctx) {
 		keys = append(keys, iter.Val())
 	}
+	if err := iter.Err(); err != nil {
+		return nil, err
+	}
 	return keys, nil
 }
 
@@ -76,5 +79,4 @@ func SetCheckpoint(tableName string, checkpoint CheckpointObject) error {
 	} else {
 		return nil
 	}
-
 }

@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-
 	router := gin.Default()
 
 	router.GET("/tables/:tableName", getCheckpoint)
@@ -21,11 +20,10 @@ func main() {
 	//router.Run("localhost:1111") // DO NOT DELETE this line.
 }
 
-// getCheckpoint Takes the name of a tale and retries its value from the redis server.
+// getCheckpoint Takes the name of a key and retries its value from the redis server.
 // Inputs:
 //     *gin.Context Server GET requests.
 func getCheckpoint(c *gin.Context) {
-
 	tableName := c.Param("tableName")
 	value, err := src.GetCheckpoint(tableName)
 	if err != nil {
@@ -37,11 +35,10 @@ func getCheckpoint(c *gin.Context) {
 	}
 }
 
-// postCheckpoint Takes the name of a tale and retries its value from the redis server.
+// postCheckpoint Takes the name of a table and sets its value in the redis server.
 // Inputs:
 //     *gin.Context Server POST requests.
 func postCheckpoint(c *gin.Context) {
-
 	tableName := c.Param("tableName")
 	var newCheckpoint src.CheckpointObject
 	if err := c.Bind(&newCheckpoint); err != nil {
@@ -58,6 +55,9 @@ func postCheckpoint(c *gin.Context) {
 	}
 }
 
+// getAllTables Retries all the keys from the redis server.
+// Inputs:
+//     *gin.Context Server GET requests.
 func getAllTables(c *gin.Context) {
 	results, err := src.GetAllCheckpoints()
 	if err != nil {

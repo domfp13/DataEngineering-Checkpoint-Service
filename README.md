@@ -38,7 +38,7 @@ To check the different target formulas run:
 $ make
 ```
 ## Add Checkpoints
-The based URL will be
+The based URL is:
 ```
 http://localhost:1111/tables/<your_table_name>
 ```
@@ -48,6 +48,7 @@ The following example will set up a checkpoint for table: sampleTableA
 ```
 curl -X POST -H 'Content-Type: application/json' --data '{"Time":"20220123"}' http://localhost:1111/tables/sampleTableA
 ```
+Response:
 ```
 {
     "message": "Value Set"
@@ -55,15 +56,20 @@ curl -X POST -H 'Content-Type: application/json' --data '{"Time":"20220123"}' ht
 ```
 
 ### GET Example
-the following example will get the checkpoint previously set.
+The following example will get the checkpoint previously set.
 ```
-http://localhost:1111/tables/sampleTableA
+curl -X GET http://localhost:1111/tables/sampleTableA
 ```
 Response
 ```
 {
     "Time": "20220123"
 }
+```
+### GET All Keys: Example
+The following example will return all the keys.
+```
+curl -X GET http://localhost:1111/tables
 ```
 
 ### Python Example
