@@ -13,14 +13,30 @@ networks:
         - subnet: ${NETWORK_SUBNET}
 
 services:
-  api-checkpoint:
-    build: .
-    container_name: api-checkpoint
-    environment:
-      - BUCKET_NAME=${BUCKET_NAME}
-      - GIN_MODE=release
-    stdin_open: true
-    tty: true
+  redis:
+    image: redis:6.0.9-buster
+    container_name: redis-checkpoint
     restart: always
     ports:
+      - "6379:6379"
+    environment:
+      - REDIS_APPENDONLY=yes
+      - REDIS_APPENDFSYNC=always
+    volumes:
+      - ./redis-data:/data
+    deploy:
+      replicas: 1
+
+  api-checkpoint:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: checkpoint-service-image:latest
+    container_name: api-checkpoint
+    depends_on:
+      - redis
+    ports:
       - "1111:1111"
+    environment:
+      - GIN_MODE=release
+    restart: always
