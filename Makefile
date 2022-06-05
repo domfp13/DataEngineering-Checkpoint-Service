@@ -31,7 +31,7 @@ runner: ## 4- Create python container tester
 
 .PHONY: clean
 clean: ## 5.- Clean Docker
-	@ docker-compose down -v
+	@ docker-compose down -v --rmi all
 	@ docker image prune --filter="dangling=true"
 
 help:
