@@ -1,5 +1,11 @@
 # checkpoint-service
-General purpose golang API to create a checkpoint service on Redis
+General purpose golang API to create a checkpoint service on Redis.
+Keys are saved under the prefix tables with a unique value call Time e.g
+```
+{
+    "Time": "20220123"
+}
+```
 
 This project contains source code and supporting files for a containerized
 golang application. It includes the following files and folders.
@@ -122,6 +128,15 @@ if __name__ == "__main__":
 python main2.py
 ```
 
+## Recovering Data in case of outage
+In case there is an issue with the services the volume is mounted in this repository
+under redis-data/dump.rdb, once all the services are stop using:
+```
+make clean
+```
+Add the changes under dump.rdb to export the checkpoints saved to this repo.
+Once you restart all services the redis data store should be intact.
+
 ## How to contribute to the project
 There are couple off rules in order to contribute to this repo.
 * #### Git
@@ -136,9 +151,6 @@ There are couple off rules in order to contribute to this repo.
         * Add test to your code.
         * Follow the directory standard.
         * ETC
-
-### Class Diagram
-* TBA ...
 
 ## Author
 * **Luis Enrique Fuentes Plata** - *2022-01-11*
