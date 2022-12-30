@@ -27,7 +27,7 @@ golang application. It includes the following files and folders.
 This repo contains a `Makefile` with different target formulas to build and run (locally/production).
 To run the application:
 ```
-$ make run
+$ make bootstrap
 ```
 A directory (redis-data) will show up if this is the first time you run the project, this will use a mouting
 volume storing the Redis data inside the project, in case services are down the data will be 

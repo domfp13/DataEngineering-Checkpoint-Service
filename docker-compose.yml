@@ -15,7 +15,7 @@ networks:
 services:
   redis:
     image: redis:6.0.9-buster
-    container_name: redis-checkpoint
+    container_name: app-redis-data-store
     restart: always
     ports:
       - "6379:6379"
@@ -27,12 +27,12 @@ services:
     deploy:
       replicas: 1
 
-  api-checkpoint:
+  api-server:
     build:
       context: .
       dockerfile: Dockerfile
-    image: checkpoint-service-image:latest
-    container_name: api-checkpoint
+    image: checkpoint-service/go-server:latest
+    container_name: api-server
     depends_on:
       - redis
     ports:

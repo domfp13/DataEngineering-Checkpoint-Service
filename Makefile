@@ -21,7 +21,7 @@ bootstrap: ## 2.-Run code server
 
 .PHONY: redis
 redis: ## 3.- Jump inside redis server: redis-cli
-	@ docker exec -it redis-checkpoint /bin/bash
+	@ docker exec -it app-redis-data-store /bin/bash
 
 .PHONY: runner
 runner: ## 4- Create python container tester
