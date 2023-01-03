@@ -33,6 +33,7 @@ jobs:
         run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
       - name: Testing CI
         run: echo $PROJECT_ID
+
 #jobs:
 #  setup-build-publish-deploy:
 #    name: Setup, Build, Publish, and Deploy
